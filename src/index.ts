@@ -1,5 +1,2 @@
 
-
-interface ICrypto {
-
-}
+export * from './sha256'

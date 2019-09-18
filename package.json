@@ -1,19 +1,19 @@
 {
-  "name": "crypto-ts",
-  "title": "crypto-ts",
+  "name": "as-crypto",
+  "title": "as-crypto",
   "description": "TypeScript library of crypto standards.",
   "version": "0.0.1",
-  "homepage": "http://github.com/gogogoghost/crypto-ts",
+  "homepage": "http://github.com/gogogoghost/as-crypto",
   "author": {
     "name": "gogogoghost",
     "url": "http://github.com/gogogoghost"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/gogogoghost/crypto-ts.git"
+    "url": "http://github.com/gogogoghost/as-crypto.git"
   },
   "bugs": {
-    "url": "http://github.com/gogogoghost/crypto-ts/issues"
+    "url": "http://github.com/gogogoghost/as-crypto/issues"
   },
   "license": "MIT",
   "scripts": {
