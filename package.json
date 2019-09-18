@@ -1,0 +1,48 @@
+{
+  "name": "crypto-ts",
+  "title": "crypto-ts",
+  "description": "TypeScript library of crypto standards.",
+  "version": "0.0.1",
+  "homepage": "http://github.com/gogogoghost/crypto-ts",
+  "author": {
+    "name": "gogogoghost",
+    "url": "http://github.com/gogogoghost"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/gogogoghost/crypto-ts.git"
+  },
+  "bugs": {
+    "url": "http://github.com/gogogoghost/crypto-ts/issues"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc -p test/tsconfig.json&&node test/dist/test/main"
+  },
+  "main": "dist/index.js",
+  "dependencies": {},
+  "devDependencies": {
+  },
+  "keywords": [
+    "security",
+    "crypto",
+    "Hash",
+    "MD5",
+    "SHA1",
+    "SHA-1",
+    "SHA256",
+    "SHA-256",
+    "RC4",
+    "Rabbit",
+    "AES",
+    "DES",
+    "PBKDF2",
+    "HMAC",
+    "OFB",
+    "CFB",
+    "CTR",
+    "CBC",
+    "Base64"
+  ]
+}
