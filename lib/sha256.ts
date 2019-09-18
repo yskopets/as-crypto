@@ -1,24 +1,11 @@
-// SHA-256 (+ HMAC and PBKDF2) for JavaScript.
-//
-// Written in 2014-2016 by Dmitry Chestnykh.
-// Public domain, no warranty.
-//
-// Functions (accept and return Uint8Arrays):
-//
-//   sha256(message) -> hash
-//   sha256.hmac(key, message) -> mac
-//   sha256.pbkdf2(password, salt, rounds, dkLen) -> dk
-//
-//  Classes:
-//
-//   new sha256.Hash()
-//   new sha256.HMAC(key)
-//
-export const digestLength: number = 32;
-export const blockSize: number = 64;
+
+export const digestLength: i32 = 32;
+export const blockSize: i32 = 64;
 
 // SHA-256 constants
-const K = new Uint32Array([
+const K = new Uint32Array(64);
+
+const rawK:i32[]=[
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b,
     0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01,
     0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7,
@@ -32,12 +19,18 @@ const K = new Uint32Array([
     0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f,
     0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
-]);
+]
 
-function hashBlocks(w: Int32Array, v: Int32Array, p: Uint8Array, pos: number, len: number): number {
-    let a: number, b: number, c: number, d: number, e: number,
-        f: number, g: number, h: number, u: number, i: number,
-        j: number, t1: number, t2: number;
+for(let i=0;i<K.length;i++){
+    K[i]=rawK[i];
+}
+
+
+
+function hashBlocks(w: Int32Array, v: Int32Array, p: Uint8Array, pos: i32, len: i32): i32 {
+    let a: i32, b: i32, c: i32, d: i32, e: i32,
+        f: i32, g: i32, h: i32, u: i32, i: i32,
+        j: i32, t1: i32, t2: i32;
     while (len >= 64) {
         a = v[0];
         b = v[1];
@@ -82,14 +75,14 @@ function hashBlocks(w: Int32Array, v: Int32Array, p: Uint8Array, pos: number, le
             a = (t1 + t2) | 0;
         }
 
-        v[0] += a;
-        v[1] += b;
-        v[2] += c;
-        v[3] += d;
-        v[4] += e;
-        v[5] += f;
-        v[6] += g;
-        v[7] += h;
+        v[0] =v[0]+a;
+        v[1] =v[1]+b;
+        v[2] =v[2]+c;
+        v[3] =v[3]+d;
+        v[4] =v[4]+e;
+        v[5] =v[5]+f;
+        v[6] =v[6]+g;
+        v[7] =v[7]+h;
 
         pos += 64;
         len -= 64;
@@ -99,15 +92,15 @@ function hashBlocks(w: Int32Array, v: Int32Array, p: Uint8Array, pos: number, le
 
 // Hash implements SHA256 hash algorithm.
 export class Hash {
-    digestLength: number = digestLength;
-    blockSize: number = blockSize;
+    digestLength: i32 = digestLength;
+    blockSize: i32 = blockSize;
 
     // Note: Int32Array is used instead of Uint32Array for performance reasons.
     private state: Int32Array = new Int32Array(8); // hash state
     private temp: Int32Array = new Int32Array(64); // temporary state
     private buffer: Uint8Array = new Uint8Array(128); // buffer for data to hash
-    private bufferLength: number  = 0; // number of bytes in buffer
-    private bytesHashed: number = 0; // number of total bytes hashed
+    private bufferLength: i32  = 0; // i32 of bytes in buffer
+    private bytesHashed: i32 = 0; // i32 of total bytes hashed
 
     finished: boolean = false; // indicates whether the hash was finalized
 
@@ -133,7 +126,7 @@ export class Hash {
     }
 
     // Cleans internal buffers and re-initializes hash state.
-    clean() {
+    clean():void {
         for (let i = 0; i < this.buffer.length; i++) {
             this.buffer[i] = 0;
         }
@@ -150,11 +143,11 @@ export class Hash {
     //
     // Throws error when trying to update already finalized hash:
     // instance must be reset to use it again.
-    update(data: Uint8Array, dataLength: number = data.length): this {
+    update(data: Uint8Array, dataLength: i32 = data.length): this {
         if (this.finished) {
             throw new Error("SHA256: can't update because hash was finished.");
         }
-        let dataPos = 0;
+        let dataPos:i32 = 0;
         this.bytesHashed += dataLength;
         if (this.bufferLength > 0) {
             while (this.bufferLength < 64 && dataLength > 0) {
@@ -171,7 +164,7 @@ export class Hash {
             dataLength %= 64;
         }
         while (dataLength > 0) {
-            this.buffer[this.bufferLength++] = data[dataPos++];
+            this.buffer[this.bufferLength] = data[dataPos++];
             dataLength--;
         }
         return this;
@@ -182,14 +175,14 @@ export class Hash {
     // If hash was already finalized, puts the same value.
     finish(out: Uint8Array): this {
         if (!this.finished) {
-            const bytesHashed = this.bytesHashed;
-            const left = this.bufferLength;
-            const bitLenHi = (bytesHashed / 0x20000000) | 0;
-            const bitLenLo = bytesHashed << 3;
-            const padLength = (bytesHashed % 64 < 56) ? 64 : 128;
+            const bytesHashed:i32 = this.bytesHashed;
+            const left:i32 = this.bufferLength;
+            const bitLenHi:i32 = (bytesHashed / 0x20000000) | 0;
+            const bitLenLo:i32 = bytesHashed << 3;
+            const padLength:i32 = (bytesHashed % 64 < 56) ? 64 : 128;
 
             this.buffer[left] = 0x80;
-            for (let i = left + 1; i < padLength - 8; i++) {
+            for (let i:i32 = left + 1; i < padLength - 8; i++) {
                 this.buffer[i] = 0;
             }
             this.buffer[padLength - 8] = (bitLenHi >>> 24) & 0xff;
@@ -218,20 +211,20 @@ export class Hash {
 
     // Returns the final hash digest.
     digest(): Uint8Array {
-        const out = new Uint8Array(this.digestLength);
+        const out = new Uint8Array(<i32>this.digestLength);
         this.finish(out);
         return out;
     }
 
     // Internal function for use in HMAC for optimization.
-    _saveState(out: Uint32Array) {
+    _saveState(out: Uint32Array):void{
         for (let i = 0; i < this.state.length; i++) {
             out[i] = this.state[i];
         }
     }
 
     // Internal function for use in HMAC for optimization.
-    _restoreState(from: Uint32Array, bytesHashed: number) {
+    _restoreState(from: Uint32Array, bytesHashed: i32):void{
         for (let i = 0; i < this.state.length; i++) {
             this.state[i] = from[i];
         }
@@ -246,8 +239,8 @@ export class HMAC {
     private inner: Hash = new Hash();
     private outer: Hash = new Hash();
 
-    blockSize: number = this.inner.blockSize;
-    digestLength: number = this.inner.digestLength;
+    blockSize: i32 = this.inner.blockSize;
+    digestLength: i32 = this.inner.digestLength;
 
     // Copies of hash states after keying.
     // Need for quick reset without hashing they key again.
@@ -294,7 +287,7 @@ export class HMAC {
     }
 
     // Cleans HMAC state.
-    clean() {
+    clean():void {
         for (let i = 0; i < this.istate.length; i++) {
             this.ostate[i] = this.istate[i] = 0;
         }
@@ -339,7 +332,7 @@ export function hash(data: Uint8Array): Uint8Array {
 export default hash;
 
 // Returns HMAC-SHA256 of data under the key.
-export function hmac(key: Uint8Array, data: Uint8Array) {
+export function hmac(key: Uint8Array, data: Uint8Array):Uint8Array{
     const h = (new HMAC(key)).update(data);
     const digest = h.digest();
     h.clean();
@@ -347,12 +340,12 @@ export function hmac(key: Uint8Array, data: Uint8Array) {
 }
 
 // Derives a key from password and salt using PBKDF2-HMAC-SHA256
-// with the given number of iterations.
+// with the given i32 of iterations.
 //
-// The number of bytes returned is equal to dkLen.
+// The i32 of bytes returned is equal to dkLen.
 //
 // (For better security, avoid dkLen greater than hash length - 32 bytes).
-export function pbkdf2(password: Uint8Array, salt: Uint8Array, iterations: number, dkLen: number) {
+export function pbkdf2(password: Uint8Array, salt: Uint8Array, iterations: i32, dkLen: i32) :Uint8Array{
     const prf = new HMAC(password);
     const len = prf.digestLength;
     const ctr = new Uint8Array(4);

@@ -20,7 +20,7 @@
     "build": "tsc",
     "test": "tsc -p test/tsconfig.json&&node test/dist/test/main"
   },
-  "main": "dist/index.js",
+  "main": "lib",
   "dependencies": {},
   "devDependencies": {
   },

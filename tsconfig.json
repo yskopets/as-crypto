@@ -6,6 +6,6 @@
     "allowJs": false
   },
   "include": [
-    "src/**/*"
+    "lib/**/*"
   ]
 }
