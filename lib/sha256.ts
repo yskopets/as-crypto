@@ -251,8 +251,8 @@ export class HMAC {
     private inner: Hash = new Hash();
     private outer: Hash = new Hash();
 
-    blockSize: u32 = this.inner.blockSize;
-    digestLength: u32 = this.inner.digestLength;
+    blockSize: i32 = this.inner.blockSize;
+    digestLength: i32 = this.inner.digestLength;
 
     // Copies of hash states after keying.
     // Need for quick reset without hashing they key again.
@@ -269,12 +269,12 @@ export class HMAC {
             }
         }
         for (let i = 0; i < pad.length; i++) {
-            pad[i] ^= 0x36;
+            pad[i] =pad[i]^0x36;
         }
         this.inner.update(pad);
 
         for (let i = 0; i < pad.length; i++) {
-            pad[i] ^= 0x36 ^ 0x5c;
+            pad[i]=pad[i]^0x36 ^ 0x5c
         }
         this.outer.update(pad);
 
