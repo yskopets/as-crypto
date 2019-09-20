@@ -359,13 +359,13 @@ export function hmac(key: Uint8Array, data: Uint8Array):Uint8Array{
 // (For better security, avoid dkLen greater than hash length - 32 bytes).
 export function pbkdf2(password: Uint8Array, salt: Uint8Array, iterations: u32, dkLen: u32) :Uint8Array{
     const prf = new HMAC(password);
-    const len = prf.digestLength;
+    const len:u32 = prf.digestLength;
     const ctr = new Uint8Array(4);
     const t = new Uint8Array(len);
     const u = new Uint8Array(len);
     const dk = new Uint8Array(dkLen);
 
-    for (let i = 0; i * len < dkLen; i++) {
+    for (let i:u32 = 0; i * len < dkLen; i++) {
         let c = i + 1;
         ctr[0] = (c >>> 24) & 0xff;
         ctr[1] = (c >>> 16) & 0xff;
@@ -375,21 +375,21 @@ export function pbkdf2(password: Uint8Array, salt: Uint8Array, iterations: u32, 
         prf.update(salt);
         prf.update(ctr);
         prf.finish(u);
-        for (let j = 0; j < len; j++) {
+        for (let j:u32 = 0; j < len; j++) {
             t[j] = u[j];
         }
-        for (let j = 2; j <= iterations; j++) {
+        for (let j:u32 = 2; j <= iterations; j++) {
             prf.reset();
             prf.update(u).finish(u);
-            for (let k = 0; k < len; k++) {
-                t[k] ^= u[k];
+            for (let k:u32 = 0; k < len; k++) {
+                t[k] =u[k]^ u[k];
             }
         }
-        for (let j = 0; j < len && i * len + j < dkLen; j++) {
+        for (let j:u32 = 0; j < len && i * len + j < dkLen; j++) {
             dk[i * len + j] = t[j];
         }
     }
-    for (let i = 0; i < len; i++) {
+    for (let i:u32 = 0; i < len; i++) {
         t[i] = u[i] = 0;
     }
     for (let i = 0; i < 4; i++) {

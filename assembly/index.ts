@@ -9,6 +9,12 @@ function str2array(str:string):Uint8Array {
   return list;
 }
 
+export function test():void{
+  const a=new Uint8Array(5);
+  const b=new Uint8Array(5);
+  sha256.pbkdf2(a,b,5,5);
+}
+
 export function sha256_base64(str:string): string {
   return base64.encode(sha256.hash(str2array(str)));
 }
