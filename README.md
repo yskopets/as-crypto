@@ -33,5 +33,5 @@ export function sha256_base64(str:string): string {
 
 ## List of modules
 
-- sha256
-- base64
+- sha256 修改自[fast-sha256-js](https://github.com/dchest/fast-sha256-js)
+- base64 修改自[CSDN](https://blog.csdn.net/u011127019/article/details/51673230)
