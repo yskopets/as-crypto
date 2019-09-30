@@ -39,13 +39,13 @@ function II(a: u32, b: u32, c: u32, d: u32, src: u32, s: u32, m: u32): u32 {
 function LeftMoveLoop(n: u32, s: u32): u32 {
     return (n << s) | (n >> (32 - s));
 }
-
+//高仿memcpy
 function memcpy(dest: Uint8Array, offset: i32, src: Uint8Array, size: i32): void {
     for (let i = 0; i < size; i++) {
         dest[i + offset] = src[i];
     }
 }
-
+//高仿memset
 function memset(dest: Uint8Array, offset: i32, ch: u8, size: i32): void {
     for (let i = 0; i < size; i++) {
         dest[i + offset] = ch;
@@ -61,7 +61,7 @@ function longTouchar(n: i64): Uint8Array {
 }
 
 
-class Md5 {
+export class Md5 {
     private buf: Uint8Array;
     private virtualVals: Uint32Array = new Uint32Array(4);
 
