@@ -3,9 +3,6 @@ const B: u32 = 0xEFCDAB89;
 const C: u32 = 0x98badcfe;
 const D: u32 = 0x10325476;
 
-const len32CharList: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-
-
 function F(x: u32, y: u32, z: u32): u32 {
     return (x & y) | ((~x) & z);
 }
@@ -217,20 +214,26 @@ class Md5 {
     }
 
 }
+const hexCharList: string[] = '0123456789abcdef'.split('');
+
 //计算32位md5
 function getHexStr(arr: Uint8Array): string {
     let s = '';
     for (let i = 0; i < arr.length; ++i) {
-        s = s + len32CharList[arr[i] / 16] + len32CharList[arr[i] % 16]
+        s = s + hexCharList[arr[i] / 16] + hexCharList[arr[i] % 16]
     }
     return s;
 }
 
-
+//直接获取字节
 export function hash(data: Uint8Array): Uint8Array {
     return (new Md5(data)).getResult();
 }
-
+//获取32位
 export function hex32(data:Uint8Array):string {
     return getHexStr((new Md5(data)).getResult());
+}
+//获取16位
+export function hex16(data:Uint8Array):string {
+    return hex32(data).substring(8,24);
 }
