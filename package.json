@@ -2,7 +2,7 @@
   "name": "as-crypto",
   "title": "as-crypto",
   "description": "TypeScript library of crypto for AssemblyScript.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "http://github.com/gogogoghost/as-crypto",
   "author": {
     "name": "gogogoghost",
