@@ -19,6 +19,7 @@ import * as sha256 from '../node_modules/as-crypto/lib/sha256'
 import * as base64 from '../node_modules/as-crypto/lib/base64'
 import * as md5 from '../node_modules/as-crypto/lib/md5'
 
+//ascii文字转字节
 function str2array(str:string):Uint8Array {
   let list=new Uint8Array(str.length);
   for(let i=0;i<str.length;i++){
@@ -27,10 +28,12 @@ function str2array(str:string):Uint8Array {
   return list;
 }
 
+//获取sha256后base64字符串
 export function sha256_base64(str:string): string {
   return base64.encode(sha256.hash(str2array(str)));
 }
 
+//获取32位md5字符串
 export function md532(str:string):string{
   return md5.hex32(str2array(str));
 }
