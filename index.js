@@ -15,8 +15,12 @@ Object.defineProperty(module, "exports", {
 (async function(){
 
   const module=await loader.instantiate(compiled,imports);
-
-  const str=module.__retain(module.__allocString('ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'));
+let a='';
+for(let i=0;i<257;i++){
+  a+='d';
+}
+//a='ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd';
+  const str=module.__retain(module.__allocString(a));
 
   console.log(module.__getString(module.md5Str(str)));
 })();

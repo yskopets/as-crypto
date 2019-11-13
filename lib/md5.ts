@@ -52,11 +52,13 @@ function memset(dest: Uint8Array, offset: i32, ch: u8, size: i32): void {
     }
 }
 
-function longTouchar(n: i64): Uint8Array {
-    const b = new Uint8Array(4);
-    for (let i = 3; i >= 0; --i) {
-        b[i] = <u8>(n >> i * 8);
+function longTouchar(n: u64): Uint8Array {
+    trace('test:',1,<f64>n)
+    const b = new Uint8Array(8);
+    for (let i = 0; i <b.length; i++) {
+        b[i] = <u8>(n >> ((b.length-i-1) * 8));
     }
+    trace(b.toString(),0)
     return b;
 }
 
@@ -157,12 +159,12 @@ export class Md5 {
 
     constructor(data: Uint8Array) {
         let size = data.length;
+        let sizeBak=size;
         this.virtualVals[0] = A;
         this.virtualVals[1] = B;
         this.virtualVals[2] = C;
         this.virtualVals[3] = D;
 
-        let oriSize = size;
         let counter = 0;
         let needAddEnd = true;
         while (true) {
@@ -171,33 +173,41 @@ export class Md5 {
             if (cpyLen > 64) {
                 cpyLen = 64;
             }
-            if (cpyLen >= 56)//只要大于等于56，就意味着无法同时写下8+64位，结束的情况一定是写下oriSize
+            if (cpyLen >= 56)
             {
+                //超过56直接复制
                 memcpy(this.buf, 0, data.slice(counter, data.length), cpyLen);//先行拷贝
                 size -= cpyLen;
                 counter += cpyLen;
+                //64的情况 无需填充 下一轮
                 if (cpyLen == 64) {
                     this.process();
                     continue;
                 }
+                //大于56不够64 填充并且结束
                 this.buf[cpyLen] = 128;//0x10000000
                 memset(this.buf, cpyLen + 1, 0, 64 - cpyLen - 1);//剩余全部填充0
                 needAddEnd = false;
                 this.process();
             } else {
+                //不满56 需要填满56
                 if (needAddEnd) {
-                    memcpy(this.buf, 0, data.slice(counter, data.length), size);//拷贝剩余字节
+                    //刚才没填充过 刚才是足的64
+                    memcpy(this.buf, 0, data.slice(counter, data.length), cpyLen);//拷贝剩余字节
 
-                    this.buf[size] = 128;//0x10000000
-                    memset(this.buf, size + 1, 0, 64 - size - 1);//剩余全部填充0
+                    this.buf[cpyLen] = 128;//0x10000000
+                    memset(this.buf, cpyLen + 1, 0, 56 - cpyLen - 1);//剩余全部填充0
+
                 } else {
-                    memset(this.buf, 0, 0, 64);//在前一项已经填充过0，证明一定填充过0x10000000，所以这就只用填充0
+                    //刚填充过了，数据用尽 全部填0就好了
+                    memset(this.buf, 0, 0, 56);
                 }
-                const ucSize = longTouchar(oriSize * 8);
 
-                //将int复制到buf上最后8个字节上去
-                memcpy(this.buf, 56, ucSize, 4);
+                //56-64用于存储长度
+                const ucSize = longTouchar(sizeBak);
+                memcpy(this.buf, 56, ucSize, 8);
 
+                trace(this.buf.toString(),1,99)
                 //delete ucSize;
                 this.process();
                 break;
