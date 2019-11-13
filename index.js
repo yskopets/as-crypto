@@ -16,7 +16,7 @@ Object.defineProperty(module, "exports", {
 
   const module=await loader.instantiate(compiled,imports);
 
-  const str=module.__retain(module.__allocString('yjclsx'));
+  const str=module.__retain(module.__allocString('ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'));
 
   console.log(module.__getString(module.md5Str(str)));
 })();

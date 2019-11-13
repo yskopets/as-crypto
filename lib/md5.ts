@@ -171,7 +171,7 @@ export class Md5 {
             if (cpyLen > 64) {
                 cpyLen = 64;
             }
-            if (data.length >= 56)//只要大于等于56，就意味着无法同时写下8+64位，结束的情况一定是写下oriSize
+            if (cpyLen >= 56)//只要大于等于56，就意味着无法同时写下8+64位，结束的情况一定是写下oriSize
             {
                 memcpy(this.buf, 0, data.slice(counter, data.length), cpyLen);//先行拷贝
                 size -= cpyLen;

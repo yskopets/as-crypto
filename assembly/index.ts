@@ -28,5 +28,5 @@ export function sha256_base64(str:string): string {
 }
 
 export function md5Str(str:string):string {
-  return md5.hex16(str2array(str));
+  return md5.hex32(str2array(str));
 }
