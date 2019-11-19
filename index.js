@@ -8,19 +8,17 @@ const imports = {
     }
   }
 };
-Object.defineProperty(module, "exports", {
-  get: () => new WebAssembly.Instance(compiled, imports).exports
-});
 
 (async function(){
 
   const module=await loader.instantiate(compiled,imports);
 let a='';
-for(let i=0;i<257;i++){
+for(let i=0;i<255;i++){
   a+='d';
 }
-//a='ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd';
+//a='123456';
   const str=module.__retain(module.__allocString(a));
 
   console.log(module.__getString(module.md5Str(str)));
+  console.log(a)
 })();

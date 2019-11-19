@@ -1,228 +1,134 @@
-const A: u32 = 0x67452301;
-const B: u32 = 0xEFCDAB89;
-const C: u32 = 0x98badcfe;
-const D: u32 = 0x10325476;
-
-function F(x: u32, y: u32, z: u32): u32 {
-    return (x & y) | ((~x) & z);
-}
-
-function G(x: u32, y: u32, z: u32): u32 {
-    return (x & z) | (y & (~z));
-}
-
-function H(x: u32, y: u32, z: u32): u32 {
-    return x ^ y ^ z;
-}
-
-function I(x: u32, y: u32, z: u32): u32 {
-    return y ^ (x | (~z));
-}
-
-function FF(a: u32, b: u32, c: u32, d: u32, src: u32, s: u32, m: u32): u32 {
-    return b + LeftMoveLoop(a + F(b, c, d) + src + m, s);
-}
-
-function GG(a: u32, b: u32, c: u32, d: u32, src: u32, s: u32, m: u32): u32 {
-    return b + LeftMoveLoop(a + G(b, c, d) + src + m, s);
-}
-
-function HH(a: u32, b: u32, c: u32, d: u32, src: u32, s: u32, m: u32): u32 {
-    return b + LeftMoveLoop(a + H(b, c, d) + src + m, s);
-}
-
-function II(a: u32, b: u32, c: u32, d: u32, src: u32, s: u32, m: u32): u32 {
-    return b + LeftMoveLoop(a + I(b, c, d) + src + m, s);
-}
-
-
-function LeftMoveLoop(n: u32, s: u32): u32 {
-    return (n << s) | (n >> (32 - s));
-}
 //高仿memcpy
 function memcpy(dest: Uint8Array, offset: i32, src: Uint8Array, size: i32): void {
     for (let i = 0; i < size; i++) {
         dest[i + offset] = src[i];
     }
 }
-//高仿memset
-function memset(dest: Uint8Array, offset: i32, ch: u8, size: i32): void {
-    for (let i = 0; i < size; i++) {
-        dest[i + offset] = ch;
-    }
+
+const k:u32[] = [
+    0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee ,
+    0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501 ,
+    0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be ,
+    0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821 ,
+    0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa ,
+    0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8 ,
+    0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed ,
+    0xa9e3e905, 0xfcefa3f8, 0x676f02d9, 0x8d2a4c8a ,
+    0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c ,
+    0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70 ,
+    0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05 ,
+    0xd9d4d039, 0xe6db99e5, 0x1fa27cf8, 0xc4ac5665 ,
+    0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039 ,
+    0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1 ,
+    0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1 ,
+    0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391 ];
+
+// r specifies the per-round shift amounts
+const r:u32[] = [7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+    5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20,
+    4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+    6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21];
+
+// leftrotate function definition
+function leftRoute(x:i64, c:i64):i64 {
+    return (((x) << (c)) | ((x) >> (32 - (c))))
 }
 
-function longTouchar(n: u64): Uint8Array {
-    trace('test:',1,<f64>n)
-    const b = new Uint8Array(8);
-    for (let i = 0; i <b.length; i++) {
-        b[i] = <u8>(n >> ((b.length-i-1) * 8));
-    }
-    trace(b.toString(),0)
-    return b;
+function toBytes(val:u32,bytes:Uint8Array,offset:u32):void
+{
+    bytes[0+offset] = <u8> val;
+    bytes[1+offset] = <u8> (val >> 8);
+    bytes[2+offset] = <u8> (val >> 16);
+    bytes[3+offset] = <u8> (val >> 24);
 }
 
+function toInt32(bytes:Uint8Array,offset:u32):u32
+{
+    return <u32>bytes[0+offset]
+        | (<u32> bytes[1+offset] << 8)
+        | (<u32> bytes[2+offset] << 16)
+        | (<u32> bytes[3+offset] << 24);
+}
 
-export class Md5 {
-    private buf: Uint8Array;
-    private virtualVals: Uint32Array = new Uint32Array(4);
+function md5(raw:Uint8Array):Uint8Array{
 
-    spTouintArray(): Uint32Array {
-        const a = new Uint32Array(16);
-        for (let i = 0; i < 16; ++i) {
-            let a1: u32 = this.buf[i * 4];
-            let a2: u32 = this.buf[i * 4 + 1];
-            let a3: u32 = this.buf[i * 4 + 2];
-            let a4: u32 = this.buf[i * 4 + 3];
-            a[i] = a1 | a2 << 8 | a3 << 16 | a4 << 24;
+    // These vars will contain the hash
+    let h0:u32, h1:u32, h2:u32, h3:u32;
+    let length=raw.length;
+
+    // Message (to prepare)
+    let msg:Uint8Array;
+
+    let newLength:u32;
+    let offset:u32;
+    let w=new Uint32Array(16);
+    let a:u32;
+    let b:u32;
+    let c:u32;
+    let d:u32;
+    let i:u32;
+    let f:u32;
+    let g:u32;
+    let temp:u32;
+
+    h0 = 0x67452301;
+    h1 = 0xefcdab89;
+    h2 = 0x98badcfe;
+    h3 = 0x10325476;
+
+    for (newLength = length + 1; newLength % (512/8) != 448/8; newLength++);
+
+    msg=new Uint8Array(newLength+8)
+    memcpy(msg, 0,raw, length);
+    msg[length] = 0x80;
+    for (offset = length + 1; offset < newLength; offset++)
+        msg[offset] = 0; // append "0" bits
+
+    toBytes(length*8, msg , newLength);
+
+    toBytes(length>>29, msg , newLength + 4);
+
+    for(offset=0; offset<newLength; offset += (512/8)) {
+
+        for (i = 0; i < 16; i++){
+            w[i] = toInt32(msg , offset + i*4);
         }
-        return a;
-    }
+        a = h0;
+        b = h1;
+        c = h2;
+        d = h3;
 
-    process(): void {
-        let a = this.virtualVals[0], b = this.virtualVals[1], c = this.virtualVals[2], d = this.virtualVals[3];
-        let M = this.spTouintArray();
-
-        a = FF(a, b, c, d, M[0], 7, 0xd76aa478);
-        d = FF(d, a, b, c, M[1], 12, 0xe8c7b756);
-        c = FF(c, d, a, b, M[2], 17, 0x242070db);
-        b = FF(b, c, d, a, M[3], 22, 0xc1bdceee);
-        a = FF(a, b, c, d, M[4], 7, 0xf57c0faf);
-        d = FF(d, a, b, c, M[5], 12, 0x4787c62a);
-        c = FF(c, d, a, b, M[6], 17, 0xa8304613);
-        b = FF(b, c, d, a, M[7], 22, 0xfd469501);
-        a = FF(a, b, c, d, M[8], 7, 0x698098d8);
-        d = FF(d, a, b, c, M[9], 12, 0x8b44f7af);
-        c = FF(c, d, a, b, M[10], 17, 0xffff5bb1);
-        b = FF(b, c, d, a, M[11], 22, 0x895cd7be);
-        a = FF(a, b, c, d, M[12], 7, 0x6b901122);
-        d = FF(d, a, b, c, M[13], 12, 0xfd987193);
-        c = FF(c, d, a, b, M[14], 17, 0xa679438e);
-        b = FF(b, c, d, a, M[15], 22, 0x49b40821);
-
-        a = GG(a, b, c, d, M[1], 5, 0xf61e2562);
-        d = GG(d, a, b, c, M[6], 9, 0xc040b340);
-        c = GG(c, d, a, b, M[11], 14, 0x265e5a51);
-        b = GG(b, c, d, a, M[0], 20, 0xe9b6c7aa);
-        a = GG(a, b, c, d, M[5], 5, 0xd62f105d);
-        d = GG(d, a, b, c, M[10], 9, 0x2441453);
-        c = GG(c, d, a, b, M[15], 14, 0xd8a1e681);
-        b = GG(b, c, d, a, M[4], 20, 0xe7d3fbc8);
-        a = GG(a, b, c, d, M[9], 5, 0x21e1cde6);
-        d = GG(d, a, b, c, M[14], 9, 0xc33707d6);
-        c = GG(c, d, a, b, M[3], 14, 0xf4d50d87);
-        b = GG(b, c, d, a, M[8], 20, 0x455a14ed);
-        a = GG(a, b, c, d, M[13], 5, 0xa9e3e905);
-        d = GG(d, a, b, c, M[2], 9, 0xfcefa3f8);
-        c = GG(c, d, a, b, M[7], 14, 0x676f02d9);
-        b = GG(b, c, d, a, M[12], 20, 0x8d2a4c8a);
-
-        a = HH(a, b, c, d, M[5], 4, 0xfffa3942);
-        d = HH(d, a, b, c, M[8], 11, 0x8771f681);
-        c = HH(c, d, a, b, M[11], 16, 0x6d9d6122);
-        b = HH(b, c, d, a, M[14], 23, 0xfde5380c);
-        a = HH(a, b, c, d, M[1], 4, 0xa4beea44);
-        d = HH(d, a, b, c, M[4], 11, 0x4bdecfa9);
-        c = HH(c, d, a, b, M[7], 16, 0xf6bb4b60);
-        b = HH(b, c, d, a, M[10], 23, 0xbebfbc70);
-        a = HH(a, b, c, d, M[13], 4, 0x289b7ec6);
-        d = HH(d, a, b, c, M[0], 11, 0xeaa127fa);
-        c = HH(c, d, a, b, M[3], 16, 0xd4ef3085);
-        b = HH(b, c, d, a, M[6], 23, 0x4881d05);
-        a = HH(a, b, c, d, M[9], 4, 0xd9d4d039);
-        d = HH(d, a, b, c, M[12], 11, 0xe6db99e5);
-        c = HH(c, d, a, b, M[15], 16, 0x1fa27cf8);
-        b = HH(b, c, d, a, M[2], 23, 0xc4ac5665);
-
-        a = II(a, b, c, d, M[0], 6, 0xf4292244);
-        d = II(d, a, b, c, M[7], 10, 0x432aff97);
-        c = II(c, d, a, b, M[14], 15, 0xab9423a7);
-        b = II(b, c, d, a, M[5], 21, 0xfc93a039);
-        a = II(a, b, c, d, M[12], 6, 0x655b59c3);
-        d = II(d, a, b, c, M[3], 10, 0x8f0ccc92);
-        c = II(c, d, a, b, M[10], 15, 0xffeff47d);
-        b = II(b, c, d, a, M[1], 21, 0x85845dd1);
-        a = II(a, b, c, d, M[8], 6, 0x6fa87e4f);
-        d = II(d, a, b, c, M[15], 10, 0xfe2ce6e0);
-        c = II(c, d, a, b, M[6], 15, 0xa3014314);
-        b = II(b, c, d, a, M[13], 21, 0x4e0811a1);
-        a = II(a, b, c, d, M[4], 6, 0xf7537e82);
-        d = II(d, a, b, c, M[11], 10, 0xbd3af235);
-        c = II(c, d, a, b, M[2], 15, 0x2ad7d2bb);
-        b = II(b, c, d, a, M[9], 21, 0xeb86d391);
-
-        this.virtualVals[0] = a + this.virtualVals[0];
-        this.virtualVals[1] = b + this.virtualVals[1];
-        this.virtualVals[2] = c + this.virtualVals[2];
-        this.virtualVals[3] = d + this.virtualVals[3];
-    }
-
-    constructor(data: Uint8Array) {
-        let size = data.length;
-        let sizeBak=size;
-        this.virtualVals[0] = A;
-        this.virtualVals[1] = B;
-        this.virtualVals[2] = C;
-        this.virtualVals[3] = D;
-
-        let counter = 0;
-        let needAddEnd = true;
-        while (true) {
-            this.buf = new Uint8Array(64);//在process后自动释放
-            let cpyLen = size - counter;
-            if (cpyLen > 64) {
-                cpyLen = 64;
-            }
-            if (cpyLen >= 56)
-            {
-                //超过56直接复制
-                memcpy(this.buf, 0, data.slice(counter, data.length), cpyLen);//先行拷贝
-                size -= cpyLen;
-                counter += cpyLen;
-                //64的情况 无需填充 下一轮
-                if (cpyLen == 64) {
-                    this.process();
-                    continue;
-                }
-                //大于56不够64 填充并且结束
-                this.buf[cpyLen] = 128;//0x10000000
-                memset(this.buf, cpyLen + 1, 0, 64 - cpyLen - 1);//剩余全部填充0
-                needAddEnd = false;
-                this.process();
+        for(i = 0; i<64; i++) {
+            if (i < 16) {
+                f = (b & c) | ((~b) & d);
+                g = i;
+            } else if (i < 32) {
+                f = (d & b) | ((~d) & c);
+                g = (5*i + 1) % 16;
+            } else if (i < 48) {
+                f = b ^ c ^ d;
+                g = (3*i + 5) % 16;
             } else {
-                //不满56 需要填满56
-                if (needAddEnd) {
-                    //刚才没填充过 刚才是足的64
-                    memcpy(this.buf, 0, data.slice(counter, data.length), cpyLen);//拷贝剩余字节
-
-                    this.buf[cpyLen] = 128;//0x10000000
-                    memset(this.buf, cpyLen + 1, 0, 56 - cpyLen - 1);//剩余全部填充0
-
-                } else {
-                    //刚填充过了，数据用尽 全部填0就好了
-                    memset(this.buf, 0, 0, 56);
-                }
-
-                //56-64用于存储长度
-                const ucSize = longTouchar(sizeBak);
-                memcpy(this.buf, 56, ucSize, 8);
-
-                trace(this.buf.toString(),1,99)
-                //delete ucSize;
-                this.process();
-                break;
+                f = c ^ (b | (~d));
+                g = (7*i) % 16;
             }
+            temp = d;
+            d = c;
+            c = b;
+            b = b + <i32>leftRoute((a + f + k[i] + w[g]), r[i]);
+            a = temp;
         }
+        h0 += a;
+        h1 += b;
+        h2 += c;
+        h3 += d;
     }
-
-    getResult(): Uint8Array {
-        const ret = new Uint8Array(16);
-        for (let i = 0; i < 4; ++i) {
-            memcpy(ret, i * 4, longTouchar(this.virtualVals[i]), 4);
-        }
-        return ret;
-    }
-
+    let result=new Uint8Array(16);
+    toBytes(h0, result,0);
+    toBytes(h1, result , 4);
+    toBytes(h2, result , 8);
+    toBytes(h3, result , 12);
+    return result
 }
 
 const hexCharList: string[] = '0123456789abcdef'.split('');
@@ -238,12 +144,12 @@ function getHexStr(arr: Uint8Array): string {
 
 //直接获取字节
 export function hash(data: Uint8Array): Uint8Array {
-    return (new Md5(data)).getResult();
+    return md5(data);
 }
 
 //获取32位
 export function hex32(data: Uint8Array): string {
-    return getHexStr((new Md5(data)).getResult());
+    return getHexStr(md5(data));
 }
 
 //获取16位
