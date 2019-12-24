@@ -131,13 +131,13 @@ function md5(raw:Uint8Array):Uint8Array{
     return result
 }
 
-const hexCharList: string[] = '0123456789abcdef'.split('');
+const hexChar='0123456789abcdef';
 
 //计算32位md5
 function getHexStr(arr: Uint8Array): string {
     let s = '';
     for (let i = 0; i < arr.length; ++i) {
-        s = s + hexCharList[arr[i] / 16] + hexCharList[arr[i] % 16]
+        s = s + hexChar.charAt(arr[i] / 16) + hexChar.charAt(arr[i] % 16)
     }
     return s;
 }

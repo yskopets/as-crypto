@@ -3,9 +3,7 @@ export const digestLength: u32 = 32;
 export const blockSize: u32 = 64;
 
 // SHA-256 constants
-const K = new Uint32Array(64);
-
-const rawK:u32[]=[
+const K:u32[]=[
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b,
     0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01,
     0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7,
@@ -20,10 +18,6 @@ const rawK:u32[]=[
     0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 ]
-
-for(let i=0;i<K.length;i++){
-    K[i]=rawK[i];
-}
 
 
 
@@ -339,9 +333,6 @@ export function hash(data: Uint8Array): Uint8Array {
     h.clean();
     return digest;
 }
-
-// Function hash is both available as module.hash and as default export.
-export default hash;
 
 // Returns HMAC-SHA256 of data under the key.
 export function hmac(key: Uint8Array, data: Uint8Array):Uint8Array{

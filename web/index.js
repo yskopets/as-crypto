@@ -9,11 +9,9 @@ import loader from '@assemblyscript/loader'
     });
 
     let a = '';
-    for (let i = 0; i < 1024000; i++) {
-        a += 'd';
-    }
-
+    a='你好我是123456，abdcdf**&%$^*)/*-+';
     const str = module.__retain(module.__allocString(a));
 
     console.log(module.__getString(module.md5Str(str)));
+    console.log(a)
 })();

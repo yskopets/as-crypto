@@ -13,10 +13,10 @@ const imports = {
 
     const module = await loader.instantiate(compiled, imports);
     let a = '';
-    for (let i = 0; i < 255; i++) {
-        a += 'd';
-    }
-//a='123456';
+    // for (let i = 0; i < 255; i++) {
+    //     a += 'd';
+    // }
+a='你好我是123456，abdcdf**&%$^*)/*-+';
     const str = module.__retain(module.__allocString(a));
 
     console.log(module.__getString(module.md5Str(str)));
