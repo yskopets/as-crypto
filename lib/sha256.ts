@@ -1,3 +1,5 @@
+import {Hash} from "./interface/hash";
+import {HMAC} from "./hmac";
 
 export const digestLength: u32 = 32;
 export const blockSize: u32 = 64;
@@ -90,9 +92,9 @@ function hashBlocks(w: Int32Array, v: Int32Array, p: Uint8Array, pos: u32, len: 
 }
 
 // Hash implements SHA256 hash algorithm.
-export class Hash {
-    digestLength: u32 = digestLength;
-    blockSize: u32 = blockSize;
+export class Sha256 extends Hash{
+    // digestLength: u32 = digestLength;
+    // blockSize: u32 = blockSize;
 
     // Note: Int32Array is used instead of Uint32Array for performance reasons.
     private state: Int32Array = new Int32Array(8); // hash state
@@ -101,9 +103,12 @@ export class Hash {
     private bufferLength: u32  = 0; // u32 of bytes in buffer
     private bytesHashed: u32 = 0; // u32 of total bytes hashed
 
-    finished: boolean = false; // indicates whether the hash was finalized
+    // finished: boolean = false; // indicates whether the hash was finalized
 
     constructor() {
+        super();
+        this.digestLength=digestLength;
+        this.blockSize=blockSize;
         this.reset();
     }
 
@@ -223,14 +228,14 @@ export class Hash {
     }
 
     // Internal function for use in HMAC for optimization.
-    _saveState(out: Uint32Array):void{
+    saveState(out: Uint32Array):void{
         for (let i = 0; i < this.state.length; i++) {
             out[i] = this.state[i];
         }
     }
 
     // Internal function for use in HMAC for optimization.
-    _restoreState(from: Uint32Array, bytesHashed: u32):void{
+    restoreState(from: Uint32Array, bytesHashed: u32):void{
         for (let i = 0; i < this.state.length; i++) {
             this.state[i] = from[i];
         }
@@ -240,91 +245,7 @@ export class Hash {
     }
 }
 
-// HMAC implements HMAC-SHA256 message authentication algorithm.
-export class HMAC {
-    private inner: Hash = new Hash();
-    private outer: Hash = new Hash();
 
-    blockSize: i32 = this.inner.blockSize;
-    digestLength: i32 = this.inner.digestLength;
-
-    // Copies of hash states after keying.
-    // Need for quick reset without hashing they key again.
-    private istate: Uint32Array;
-    private ostate: Uint32Array;
-
-    constructor(key: Uint8Array) {
-        const pad = new Uint8Array(this.blockSize);
-        if (key.length > this.blockSize) {
-            (new Hash()).update(key).finish(pad).clean();
-        } else {
-            for (let i = 0; i < key.length; i++) {
-                pad[i] = key[i];
-            }
-        }
-        for (let i = 0; i < pad.length; i++) {
-            pad[i] =pad[i]^0x36;
-        }
-        this.inner.update(pad);
-
-        for (let i = 0; i < pad.length; i++) {
-            pad[i]=pad[i]^0x36 ^ 0x5c
-        }
-        this.outer.update(pad);
-
-        this.istate = new Uint32Array(8);
-        this.ostate = new Uint32Array(8);
-
-        this.inner._saveState(this.istate);
-        this.outer._saveState(this.ostate);
-
-        for (let i = 0; i < pad.length; i++) {
-            pad[i] = 0;
-        }
-    }
-
-    // Returns HMAC state to the state initialized with key
-    // to make it possible to run HMAC over the other data with the same
-    // key without creating a new instance.
-    reset(): this {
-        this.inner._restoreState(this.istate, this.inner.blockSize);
-        this.outer._restoreState(this.ostate, this.outer.blockSize);
-        return this;
-    }
-
-    // Cleans HMAC state.
-    clean():void {
-        for (let i = 0; i < this.istate.length; i++) {
-            this.ostate[i] = this.istate[i] = 0;
-        }
-        this.inner.clean();
-        this.outer.clean();
-    }
-
-    // Updates state with provided data.
-    update(data: Uint8Array): this {
-        this.inner.update(data);
-        return this;
-    }
-
-    // Finalizes HMAC and puts the result in out.
-    finish(out: Uint8Array): this {
-        if (this.outer.finished) {
-            this.outer.finish(out);
-        } else {
-            this.inner.finish(out);
-            this.outer.update(out, this.digestLength).finish(out);
-        }
-        return this;
-    }
-
-    // Returns message authentication code.
-    digest(): Uint8Array {
-        const out = new Uint8Array(this.digestLength);
-        this.finish(out);
-        return out;
-    }
-}
 
 // Returns SHA256 hash of data.
 export function hash(data: Uint8Array): Uint8Array {
@@ -336,10 +257,14 @@ export function hash(data: Uint8Array): Uint8Array {
 
 // Returns HMAC-SHA256 of data under the key.
 export function hmac(key: Uint8Array, data: Uint8Array):Uint8Array{
-    const h = (new HMAC(key)).update(data);
+    const h = (new HMAC<Sha256>(instance,key)).update(data);
     const digest = h.digest();
     h.clean();
     return digest;
+}
+
+function instance():Sha256 {
+    return new Sha256();
 }
 
 // Derives a key from password and salt using PBKDF2-HMAC-SHA256
@@ -349,7 +274,7 @@ export function hmac(key: Uint8Array, data: Uint8Array):Uint8Array{
 //
 // (For better security, avoid dkLen greater than hash length - 32 bytes).
 export function pbkdf2(password: Uint8Array, salt: Uint8Array, iterations: u32, dkLen: u32) :Uint8Array{
-    const prf = new HMAC(password);
+    const prf = new HMAC<Sha256>(instance,password);
     const len:u32 = prf.digestLength;
     const ctr = new Uint8Array(4);
     const t = new Uint8Array(len);

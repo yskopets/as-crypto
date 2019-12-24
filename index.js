@@ -19,6 +19,6 @@ const imports = {
 a='你好我是123456，abdcdf**&%$^*)/*-+';
     const str = module.__retain(module.__allocString(a));
 
-    console.log(module.__getString(module.md5Str(str)));
+    console.log(module.__getString(module.sha256_base64(str)));
     console.log(a)
 })();
