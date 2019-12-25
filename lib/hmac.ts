@@ -1,8 +1,8 @@
 // HMAC implements HMAC-SHA256 message authentication algorithm.
 
-import {Hash} from "./interface/hash";
+import {Hash} from "./base/hash";
 
-export class HMAC<T extends Hash> {
+export class HMAC<T extends Hash>{
     private inner: T ;
     private outer: T ;
 
@@ -14,17 +14,18 @@ export class HMAC<T extends Hash> {
     private istate: Uint32Array;
     private ostate: Uint32Array;
 
-    constructor(type:()=>T,key: Uint8Array) {
+    constructor(hashType:()=>T,key: Uint8Array) {
         //初始化
-        this.inner=type();
-        this.outer=type();
+        this.inner=hashType();
+        this.outer=hashType();
         this.blockSize=this.inner.blockSize;
         this.digestLength=this.inner.digestLength;
 
 
         const pad = new Uint8Array(this.blockSize);
         if (key.length > this.blockSize) {
-            (type()).update(key).finish(pad).clean();
+            const obj=hashType();
+            obj.update(key).finish(pad).clean();
         } else {
             for (let i = 0; i < key.length; i++) {
                 pad[i] = key[i];

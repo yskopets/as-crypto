@@ -17,6 +17,7 @@ const imports = {
     //     a += 'd';
     // }
 a='你好我是123456，abdcdf**&%$^*)/*-+';
+a='123456'
     const str = module.__retain(module.__allocString(a));
 
     console.log(module.__getString(module.sha256_base64(str)));

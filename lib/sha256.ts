@@ -1,4 +1,4 @@
-import {Hash} from "./interface/hash";
+import {Hash} from "./base/hash";
 import {HMAC} from "./hmac";
 
 export const digestLength: u32 = 32;
@@ -249,7 +249,7 @@ export class Sha256 extends Hash{
 
 // Returns SHA256 hash of data.
 export function hash(data: Uint8Array): Uint8Array {
-    const h = (new Hash()).update(data);
+    const h = (new Sha256()).update(data);
     const digest = h.digest();
     h.clean();
     return digest;

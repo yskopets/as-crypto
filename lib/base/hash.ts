@@ -13,6 +13,6 @@ export class Hash {
         return new Uint8Array(0);
     };
     public clean():void{};
-    public saveState(arr:Uint8Array):void{};
-    public restoreState(arr:Uint8Array,len:i32):void{};
+    public saveState(arr:Uint32Array):void{};
+    public restoreState(arr:Uint32Array,len:i32):void{};
 }
