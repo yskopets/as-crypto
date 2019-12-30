@@ -34,3 +34,23 @@ export function utf82array(str:string):Uint8Array{
 export function array2utf8(arr:Uint8Array):string {
     return String.UTF8.decode(arr.buffer,false);
 }
+
+/**
+ * 字符转hex字符串
+ */
+const str4hex:string[] = [
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+];
+
+export function hex2str(arr:Uint8Array):string {
+    let str='';
+    for(let i =0;i<arr.length;i++){
+        let num=arr[i];
+        let up=num/16;
+        let down=num%16;
+        if(up>16)
+            up=16;
+        str+=(str4hex[up]+str4hex[down]);
+    }
+    return str;
+}

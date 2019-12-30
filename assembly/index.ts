@@ -10,12 +10,18 @@ export function test():void{
 }
 
 export function sha256_base64(str:string): string {
-  const tmp=sha256.hash(common.ascii2array(str));
-  for(let i=0;i<tmp.length;i++){
-    trace('123',1,tmp[i]);
-  }
-  // trace('123',1,tmp.length)
-  return base64.encode(tmp);
+  return base64.encode(sha256.hash(common.utf82array(str)));
+}
+
+export function sha256_hex(str:string):string {
+  return common.hex2str(sha256.hash(common.utf82array(str)));
+}
+
+export function sha256hmac_hex(data:string,key:string):string {
+  return common.hex2str(sha256.hmac(
+      common.utf82array(key),
+      common.utf82array(data)
+  ))
 }
 
 export function md5Str(str:string):string {
