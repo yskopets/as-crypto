@@ -21,6 +21,6 @@ a='123456'
     const str = module.__retain(module.__allocString(a));
     const key = module.__retain(module.__allocString('123'));
 
-    console.log(module.__getString(module.md5Str(str)));
+    console.log(module.__getString(module.sha1_hex(str)));
     console.log(a)
 })();

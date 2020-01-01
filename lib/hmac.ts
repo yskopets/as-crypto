@@ -11,8 +11,8 @@ export class HMAC<T extends Hash>{
 
     // Copies of hash states after keying.
     // Need for quick reset without hashing they key again.
-    private istate: Uint32Array;
-    private ostate: Uint32Array;
+    // private istate: Uint32Array;
+    // private ostate: Uint32Array;
 
     constructor(hashType:()=>T,key: Uint8Array) {
         //初始化
@@ -25,7 +25,8 @@ export class HMAC<T extends Hash>{
         const pad = new Uint8Array(this.blockSize);
         if (key.length > this.blockSize) {
             const obj=hashType();
-            obj.update(key).finish(pad).clean();
+            obj.update(key).finish(pad);
+            // obj.update(key).finish(pad).clean();
         } else {
             for (let i = 0; i < key.length; i++) {
                 pad[i] = key[i];
@@ -41,11 +42,11 @@ export class HMAC<T extends Hash>{
         }
         this.outer.update(pad);
 
-        this.istate = new Uint32Array(8);
-        this.ostate = new Uint32Array(8);
-
-        this.inner.saveState(this.istate);
-        this.outer.saveState(this.ostate);
+        // this.istate = new Uint32Array(8);
+        // this.ostate = new Uint32Array(8);
+        //
+        // this.inner.saveState(this.istate);
+        // this.outer.saveState(this.ostate);
 
         for (let i = 0; i < pad.length; i++) {
             pad[i] = 0;
@@ -55,20 +56,20 @@ export class HMAC<T extends Hash>{
     // Returns HMAC state to the state initialized with key
     // to make it possible to run HMAC over the other data with the same
     // key without creating a new instance.
-    reset(): this {
-        this.inner.restoreState(this.istate, this.inner.blockSize);
-        this.outer.restoreState(this.ostate, this.outer.blockSize);
-        return this;
-    }
+    // reset(): this {
+    //     this.inner.restoreState(this.istate, this.inner.blockSize);
+    //     this.outer.restoreState(this.ostate, this.outer.blockSize);
+    //     return this;
+    // }
 
     // Cleans HMAC state.
-    clean():void {
-        for (let i = 0; i < this.istate.length; i++) {
-            this.ostate[i] = this.istate[i] = 0;
-        }
-        this.inner.clean();
-        this.outer.clean();
-    }
+    // clean():void {
+    //     for (let i = 0; i < this.istate.length; i++) {
+    //         this.ostate[i] = this.istate[i] = 0;
+    //     }
+    //     this.inner.clean();
+    //     this.outer.clean();
+    // }
 
     // Updates state with provided data.
     update(data: Uint8Array): this {

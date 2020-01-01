@@ -2,6 +2,7 @@ import * as sha256 from '../lib/sha256'
 import * as base64 from '../lib/base64'
 import * as md5 from '../lib/md5'
 import * as common from '../lib/common'
+import * as sha1 from '../lib/sha1'
 
 // export function test():void{
 //   const a=new Uint8Array(5);
@@ -26,4 +27,8 @@ export function sha256hmac_hex(key:string,data:string):string {
 
 export function md5Str(str:string):string {
   return md5.hex32(common.utf82array(str));
+}
+
+export function sha1_hex(str:string):string {
+  return common.hex2str(sha1.hash(common.utf82array(str)));
 }

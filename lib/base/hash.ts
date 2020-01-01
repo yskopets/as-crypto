@@ -1,7 +1,6 @@
 export class Hash {
     public blockSize:i32;
     public digestLength:i32;
-    public finished:boolean=false
 
     public update(data:Uint8Array,dataLength:u32=data.length):this{
         return this;
@@ -12,7 +11,7 @@ export class Hash {
     public digest():Uint8Array{
         return new Uint8Array(0);
     };
-    public clean():void{};
-    public saveState(arr:Uint32Array):void{};
-    public restoreState(arr:Uint32Array,len:i32):void{};
+    // public clean():void{};
+    // public saveState(arr:Uint32Array):void{};
+    // public restoreState(arr:Uint32Array,len:i32):void{};
 }

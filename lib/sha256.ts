@@ -100,6 +100,8 @@ class Sha256 extends Hash{
     private bufferLength: u32  = 0; // u32 of bytes in buffer
     private bytesHashed: u32 = 0; // u32 of total bytes hashed
 
+    private finished:boolean;
+
     // finished: boolean = false; // indicates whether the hash was finalized
 
     constructor() {
@@ -127,15 +129,15 @@ class Sha256 extends Hash{
     }
 
     // Cleans internal buffers and re-initializes hash state.
-    clean():void {
-        for (let i = 0; i < this.buffer.length; i++) {
-            this.buffer[i] = 0;
-        }
-        for (let i = 0; i < this.temp.length; i++) {
-            this.temp[i] = 0;
-        }
-        this.reset();
-    }
+    // clean():void {
+    //     for (let i = 0; i < this.buffer.length; i++) {
+    //         this.buffer[i] = 0;
+    //     }
+    //     for (let i = 0; i < this.temp.length; i++) {
+    //         this.temp[i] = 0;
+    //     }
+    //     this.reset();
+    // }
 
     // Updates hash state with the given data.
     //
@@ -225,21 +227,21 @@ class Sha256 extends Hash{
     }
 
     // Internal function for use in HMAC for optimization.
-    saveState(out: Uint32Array):void{
-        for (let i = 0; i < this.state.length; i++) {
-            out[i] = this.state[i];
-        }
-    }
-
-    // Internal function for use in HMAC for optimization.
-    restoreState(from: Uint32Array, bytesHashed: u32):void{
-        for (let i = 0; i < this.state.length; i++) {
-            this.state[i] = from[i];
-        }
-        this.bytesHashed = bytesHashed;
-        this.finished = false;
-        this.bufferLength = 0;
-    }
+    // saveState(out: Uint32Array):void{
+    //     for (let i = 0; i < this.state.length; i++) {
+    //         out[i] = this.state[i];
+    //     }
+    // }
+    //
+    // // Internal function for use in HMAC for optimization.
+    // restoreState(from: Uint32Array, bytesHashed: u32):void{
+    //     for (let i = 0; i < this.state.length; i++) {
+    //         this.state[i] = from[i];
+    //     }
+    //     this.bytesHashed = bytesHashed;
+    //     this.finished = false;
+    //     this.bufferLength = 0;
+    // }
 }
 
 function instance():Sha256 {
@@ -250,7 +252,7 @@ function instance():Sha256 {
 export function hash(data: Uint8Array): Uint8Array {
     const h = (new Sha256()).update(data);
     const digest = h.digest();
-    h.clean();
+    // h.clean();
     return digest;
 }
 
@@ -258,7 +260,7 @@ export function hash(data: Uint8Array): Uint8Array {
 export function hmac(key: Uint8Array, data: Uint8Array):Uint8Array{
     const h = (new HMAC<Sha256>(instance,key)).update(data);
     const digest = h.digest();
-    h.clean();
+    // h.clean();
     return digest;
 }
 
