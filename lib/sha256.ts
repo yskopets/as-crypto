@@ -1,9 +1,6 @@
 import {Hash} from "./base/hash";
 import {HMAC} from "./hmac";
 
-export const digestLength: u32 = 32;
-export const blockSize: u32 = 64;
-
 // SHA-256 constants
 const K:u32[]=[
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b,
@@ -92,7 +89,7 @@ function hashBlocks(w: Int32Array, v: Int32Array, p: Uint8Array, pos: u32, len: 
 }
 
 // Hash implements SHA256 hash algorithm.
-export class Sha256 extends Hash{
+class Sha256 extends Hash{
     // digestLength: u32 = digestLength;
     // blockSize: u32 = blockSize;
 
@@ -107,8 +104,8 @@ export class Sha256 extends Hash{
 
     constructor() {
         super();
-        this.digestLength=digestLength;
-        this.blockSize=blockSize;
+        this.digestLength=32;
+        this.blockSize=64;
         this.reset();
     }
 
@@ -245,7 +242,9 @@ export class Sha256 extends Hash{
     }
 }
 
-
+function instance():Sha256 {
+    return new Sha256();
+}
 
 // Returns SHA256 hash of data.
 export function hash(data: Uint8Array): Uint8Array {
@@ -263,54 +262,50 @@ export function hmac(key: Uint8Array, data: Uint8Array):Uint8Array{
     return digest;
 }
 
-function instance():Sha256 {
-    return new Sha256();
-}
-
 // Derives a key from password and salt using PBKDF2-HMAC-SHA256
 // with the given u32 of iterations.
 //
 // The u32 of bytes returned is equal to dkLen.
 //
 // (For better security, avoid dkLen greater than hash length - 32 bytes).
-export function pbkdf2(password: Uint8Array, salt: Uint8Array, iterations: u32, dkLen: u32) :Uint8Array{
-    const prf = new HMAC<Sha256>(instance,password);
-    const len:u32 = prf.digestLength;
-    const ctr = new Uint8Array(4);
-    const t = new Uint8Array(len);
-    const u = new Uint8Array(len);
-    const dk = new Uint8Array(dkLen);
-
-    for (let i:u32 = 0; i * len < dkLen; i++) {
-        let c = i + 1;
-        ctr[0] = (c >>> 24) & 0xff;
-        ctr[1] = (c >>> 16) & 0xff;
-        ctr[2] = (c >>> 8)  & 0xff;
-        ctr[3] = (c >>> 0)  & 0xff;
-        prf.reset();
-        prf.update(salt);
-        prf.update(ctr);
-        prf.finish(u);
-        for (let j:u32 = 0; j < len; j++) {
-            t[j] = u[j];
-        }
-        for (let j:u32 = 2; j <= iterations; j++) {
-            prf.reset();
-            prf.update(u).finish(u);
-            for (let k:u32 = 0; k < len; k++) {
-                t[k] =u[k]^ u[k];
-            }
-        }
-        for (let j:u32 = 0; j < len && i * len + j < dkLen; j++) {
-            dk[i * len + j] = t[j];
-        }
-    }
-    for (let i:u32 = 0; i < len; i++) {
-        t[i] = u[i] = 0;
-    }
-    for (let i = 0; i < 4; i++) {
-        ctr[i] = 0;
-    }
-    prf.clean();
-    return dk;
-}
+// export function pbkdf2(password: Uint8Array, salt: Uint8Array, iterations: u32, dkLen: u32) :Uint8Array{
+//     const prf = new HMAC<Sha256>(instance,password);
+//     const len:u32 = prf.digestLength;
+//     const ctr = new Uint8Array(4);
+//     const t = new Uint8Array(len);
+//     const u = new Uint8Array(len);
+//     const dk = new Uint8Array(dkLen);
+//
+//     for (let i:u32 = 0; i * len < dkLen; i++) {
+//         let c = i + 1;
+//         ctr[0] = (c >>> 24) & 0xff;
+//         ctr[1] = (c >>> 16) & 0xff;
+//         ctr[2] = (c >>> 8)  & 0xff;
+//         ctr[3] = (c >>> 0)  & 0xff;
+//         prf.reset();
+//         prf.update(salt);
+//         prf.update(ctr);
+//         prf.finish(u);
+//         for (let j:u32 = 0; j < len; j++) {
+//             t[j] = u[j];
+//         }
+//         for (let j:u32 = 2; j <= iterations; j++) {
+//             prf.reset();
+//             prf.update(u).finish(u);
+//             for (let k:u32 = 0; k < len; k++) {
+//                 t[k] =u[k]^ u[k];
+//             }
+//         }
+//         for (let j:u32 = 0; j < len && i * len + j < dkLen; j++) {
+//             dk[i * len + j] = t[j];
+//         }
+//     }
+//     for (let i:u32 = 0; i < len; i++) {
+//         t[i] = u[i] = 0;
+//     }
+//     for (let i = 0; i < 4; i++) {
+//         ctr[i] = 0;
+//     }
+//     prf.clean();
+//     return dk;
+// }

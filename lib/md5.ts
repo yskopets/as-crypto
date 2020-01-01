@@ -137,7 +137,7 @@ const hexChar='0123456789abcdef';
 function getHexStr(arr: Uint8Array): string {
     let s = '';
     for (let i = 0; i < arr.length; ++i) {
-        s = s + hexChar.charAt(arr[i] / 16) + hexChar.charAt(arr[i] % 16)
+        s += hexChar.charAt(arr[i] / 16) + hexChar.charAt(arr[i] % 16)
     }
     return s;
 }

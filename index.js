@@ -19,7 +19,8 @@ const imports = {
 a='你好我是123456，abdcdf**&%$^*)/*-+';
 a='123456'
     const str = module.__retain(module.__allocString(a));
+    const key = module.__retain(module.__allocString('123'));
 
-    console.log(module.__getString(module.sha256hmac_hex('123',str)));
+    console.log(module.__getString(module.md5Str(str)));
     console.log(a)
 })();

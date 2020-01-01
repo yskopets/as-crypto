@@ -38,9 +38,7 @@ export function array2utf8(arr:Uint8Array):string {
 /**
  * 字符转hex字符串
  */
-const str4hex:string[] = [
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-];
+const hexStr='0123456789abcdef';
 
 export function hex2str(arr:Uint8Array):string {
     let str='';
@@ -50,7 +48,7 @@ export function hex2str(arr:Uint8Array):string {
         let down=num%16;
         if(up>16)
             up=16;
-        str+=(str4hex[up]+str4hex[down]);
+        str+=hexStr.charAt(up)+hexStr.charAt(down);
     }
     return str;
 }
