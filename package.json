@@ -46,5 +46,6 @@
     "CTR",
     "CBC",
     "Base64"
-  ]
+  ],
+  "ascMain": "lib"
 }
