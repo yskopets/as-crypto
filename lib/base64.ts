@@ -1,6 +1,7 @@
-const _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+export const BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+export const BASE64URL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
 
-export function encode(input:Uint8Array):string {
+export function encode(input:Uint8Array, alphabet: string = BASE64):string {
     let output = '';
     let chr1:i32, chr2:i32, chr3:i32, enc1:i32, enc2:i32, enc3:i32, enc4:i32;
     let i:i32 = 0;
@@ -18,13 +19,13 @@ export function encode(input:Uint8Array):string {
         enc4 = chr3?chr3 & 63:64;
 
         output = output +
-            _keyStr.charAt(enc1) + _keyStr.charAt(enc2) +
-            _keyStr.charAt(enc3) + _keyStr.charAt(enc4);
+            alphabet.charAt(enc1) + alphabet.charAt(enc2) +
+            alphabet.charAt(enc3) + alphabet.charAt(enc4);
     }
     return output;
 }
 
-export function decode(input:string):Uint8Array {
+export function decode(input:string, alphabet: string = BASE64):Uint8Array {
     //非法字符串
     if(input.length==0||input.length%4!=0)
         return new Uint8Array(0);
@@ -36,7 +37,7 @@ export function decode(input:string):Uint8Array {
         const enc=new Uint8Array(4);
         for(let j=0;j<4;j++){
             const c=input.charAt(i++);
-            let index=_keyStr.indexOf(c);
+            let index=alphabet.indexOf(c);
             if(index<0)
                 return new Uint8Array(0);
             if(index==64){
