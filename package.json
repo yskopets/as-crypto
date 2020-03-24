@@ -23,7 +23,7 @@
     "asbuild": "npm run asbuild:untouched && npm run asbuild:optimized"
   },
   "dependencies": {
-    "assemblyscript": "AssemblyScript/assemblyscript"
+    "assemblyscript": "^0.9.4"
   },
   "devDependencies": {},
   "keywords": [
